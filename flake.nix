@@ -44,6 +44,6 @@
       ;
     in
     {
-      packages = constructPackagesOutput (import ./all-packages.nix);
+      packages = constructPackagesOutput (import ./pkgs/all-packages.nix);
     };
 }
