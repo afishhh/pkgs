@@ -8,6 +8,8 @@
       supportedSystems = [
         "x86_64-linux"
         "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
       ];
       evaluatedNixpkgs = builtins.listToAttrs
         (builtins.map
@@ -23,8 +25,7 @@
 
       constructPackagesFor = name: package:
         let
-          imported = import package;
-          meta = lib.f.getPackageMeta imported;
+          meta = lib.f.getPackageMeta package;
           inherit (meta) systems;
         in
         builtins.foldl'
@@ -42,8 +43,30 @@
           { }
           (builtins.attrValues (builtins.mapAttrs constructPackagesFor packages))
       ;
+
+      mkOverlayPartForPackageType =
+        final: prev: packageType: packages:
+        if packageType == lib.f.packageTypes.standalone then
+          builtins.listToAttrs
+            (builtins.map ({ name, meta, package }: { inherit name; value = lib.f.callPackage final package; }) packages)
+        else if packageType == lib.f.packageTypes.vimPlugin then
+          {
+            vimPlugins = prev.vimPlugins //
+              mkOverlayPartForPackageType final prev lib.f.packageTypes.standalone packages;
+          }
+        else
+          builtins.trace "TODO: Implement overlay construction for package type '${packageType}'" { }
+      ;
+      mkOverlay = packages: final: prev:
+        builtins.foldl' (a: b: a // b)
+          { }
+          (builtins.attrValues (builtins.mapAttrs (mkOverlayPartForPackageType final prev)
+            (builtins.groupBy ({ name, meta, package }: meta.type)
+              (builtins.attrValues (builtins.mapAttrs (name: package: { inherit name package; meta = lib.f.getPackageMeta package; }) packages)))));
     in
     {
+      inherit lib;
       packages = constructPackagesOutput (import ./pkgs/all-packages.nix);
+      overlays.default = mkOverlay (import ./pkgs/all-packages.nix);
     };
 }

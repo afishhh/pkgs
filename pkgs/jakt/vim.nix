@@ -18,5 +18,6 @@ lib.f.mkPackage pkgs.vimUtils.buildVimPlugin {
     homepage = "https://github.com/SerenityOS/jakt";
     license = lib.licenses.bsd2;
     systems = lib.f.defaultSystems;
+    type = lib.f.packageTypes.vimPlugin;
   };
 }

@@ -1,5 +1,5 @@
 {
-  jakt = ./jakt/compiler.nix;
-  jakt-lsp = ./jakt/lsp.nix;
-  jakt-vim = ./jakt/vim.nix;
+  jakt = import ./jakt/compiler.nix;
+  jakt-language-server = import ./jakt/lsp.nix;
+  jakt-vim = import ./jakt/vim.nix;
 }
