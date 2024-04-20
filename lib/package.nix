@@ -2,7 +2,7 @@
 
 let
   mkPackage = constructor: { meta, passthru ? { }, ... }@attrs: attrs // passthru // {
-    inherit (constructor attrs) name outPath outputs;
+    inherit (constructor attrs) name drvPath outPath outputs;
 
     type = "derivation";
     meta = meta // {
