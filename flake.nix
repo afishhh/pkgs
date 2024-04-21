@@ -63,10 +63,17 @@
           (builtins.attrValues (builtins.mapAttrs (mkOverlayPartForPackageType final prev)
             (builtins.groupBy ({ name, meta, package }: meta.type)
               (builtins.attrValues (builtins.mapAttrs (name: package: { inherit name package; meta = lib.f.getPackageMeta package; }) packages)))));
+
+      allModules = import ./modules/all-modules.nix;
     in
     {
       inherit lib;
       packages = constructPackagesOutput (import ./pkgs/all-packages.nix);
       overlays.default = mkOverlay (import ./pkgs/all-packages.nix);
+      nixosModules = allModules // {
+        default = _: {
+          imports = builtins.attrValues allModules;
+        };
+      };
     };
 }
