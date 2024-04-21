@@ -6,7 +6,7 @@
 
     source = lib.mkOption {
       description = ''
-        Source to use as input for rnnoise
+        Source to use as input for rnnoise.
       '';
       type = lib.types.nullOr lib.types.str;
     };
@@ -14,19 +14,18 @@
     extraLoopbackOptions = lib.mkOption {
       default = "";
       description = ''
-        Additional options for the module-loopback and module-remap-source module.
+        Additional options for the module-loopback and module-remap-source modules.
       '';
-      example = ''
-        channels=2
-      '';
+      example = "channels=2";
       type = lib.types.separatedString " ";
     };
 
     setAsDefaultSource = lib.mkOption {
       default = false;
       description = ''
-        Whether to set the denoised source as default
+        Whether to set the denoised source as default.
       '';
+      example = true;
       type = lib.types.bool;
     };
   };
