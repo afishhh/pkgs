@@ -35,14 +35,14 @@ let
 
   isPackage = package: builtins.isAttrs package && package?type && package.type == "f.package";
 
-  callPackage = pkgs: package:
-    (pkgs.callPackage
+  callPackageWith = pkgs: package:
+    (pkgs.lib.callPackageWith pkgs
       (coercePackage package)
       { lib = pkgs.lib // lib; })
   ;
 in
 {
-  inherit mkPackage getPackageMeta isPackage callPackage;
+  inherit mkPackage getPackageMeta isPackage callPackageWith;
   packageTypes = builtins.listToAttrs (builtins.map (v: { name = v; value = v; }) [
     "standalone"
     "vimPlugin"

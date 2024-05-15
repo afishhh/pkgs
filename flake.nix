@@ -22,33 +22,37 @@
           })
           supportedSystems
         );
+      fetchers = builtins.mapAttrs (system: pkgs: builtins.mapAttrs (name: value: lib.f.callPackageWith pkgs value) (import ./pkgs/fetchers/all.nix)) evaluatedNixpkgs;
 
-      constructPackagesFor = name: package:
+      constructPackagesFor = output: name: package:
         let
           meta = lib.f.getPackageMeta package;
           inherit (meta) systems;
         in
         builtins.foldl'
           (attrs: system: attrs // {
-            ${system}.${name} = lib.f.callPackage evaluatedNixpkgs.${system} package;
+            ${system}.${name} = lib.f.callPackageWith (evaluatedNixpkgs.${system} // fetchers.${system} // output.${system}) package;
           })
           { }
           systems;
       constructPackagesOutput =
         packages:
-        builtins.foldl'
-          (lib.recursiveUpdateUntil
-            (path: lhs: rhs: lib.f.isPackage lhs || lib.f.isPackage rhs)
-          )
-          { }
-          (builtins.attrValues (builtins.mapAttrs constructPackagesFor packages))
+        let
+          result = builtins.foldl'
+            (lib.recursiveUpdateUntil
+              (path: lhs: rhs: lib.f.isPackage lhs || lib.f.isPackage rhs)
+            )
+            { }
+            (builtins.attrValues (builtins.mapAttrs (constructPackagesFor result) packages));
+        in
+        result
       ;
 
       mkOverlayPartForPackageType =
         final: prev: packageType: packages:
         if packageType == lib.f.packageTypes.standalone then
           builtins.listToAttrs
-            (builtins.map ({ name, meta, package }: { inherit name; value = lib.f.callPackage final package; }) packages)
+            (builtins.map ({ name, meta, package }: { inherit name; value = lib.f.callPackageWith final package; }) packages)
         else if packageType == lib.f.packageTypes.vimPlugin then
           {
             vimPlugins = prev.vimPlugins //
