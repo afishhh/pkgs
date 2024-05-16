@@ -52,7 +52,7 @@
         final: prev: packageType: packages:
         if packageType == lib.f.packageTypes.standalone then
           builtins.listToAttrs
-            (builtins.map ({ name, meta, package }: { inherit name; value = lib.f.callPackageWith final package; }) packages)
+            (builtins.map ({ name, meta, package }: { inherit name; value = lib.f.callPackageWith (final // fetchers.${final.system}) package; }) packages)
         else if packageType == lib.f.packageTypes.vimPlugin then
           {
             vimPlugins = prev.vimPlugins //
