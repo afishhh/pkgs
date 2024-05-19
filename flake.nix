@@ -26,12 +26,11 @@
 
       constructPackagesFor = output: name: package:
         let
-          meta = lib.f.getPackageMeta package;
-          inherit (meta) systems;
+          inherit (package.meta) systems;
         in
         builtins.foldl'
           (attrs: system: attrs // {
-            ${system}.${name} = lib.f.callPackageWith (evaluatedNixpkgs.${system} // fetchers.${system} // output.${system}) package;
+            ${system}.${name} = lib.f.callPackageWith (evaluatedNixpkgs.${system} // fetchers.${system} // output.${system} // { nixpkgs = evaluatedNixpkgs.${system}; }) package;
           })
           { }
           systems;
@@ -52,7 +51,7 @@
         final: prev: packageType: packages:
         if packageType == lib.f.packageTypes.standalone then
           builtins.listToAttrs
-            (builtins.map ({ name, meta, package }: { inherit name; value = lib.f.callPackageWith (final // fetchers.${final.system}) package; }) packages)
+            (builtins.map ({ name, package }: { inherit name; value = lib.f.callPackageWith (final // fetchers.${final.system} // { nixpkgs = evaluatedNixpkgs.${final.system}; }) package; }) packages)
         else if packageType == lib.f.packageTypes.vimPlugin then
           {
             vimPlugins = prev.vimPlugins //
@@ -65,15 +64,16 @@
         builtins.foldl' (a: b: a // b)
           { }
           (builtins.attrValues (builtins.mapAttrs (mkOverlayPartForPackageType final prev)
-            (builtins.groupBy ({ name, meta, package }: meta.type)
-              (builtins.attrValues (builtins.mapAttrs (name: package: { inherit name package; meta = lib.f.getPackageMeta package; }) packages)))));
+            (builtins.groupBy ({ name, package }: package.meta.type)
+              (builtins.attrValues (builtins.mapAttrs (name: package: { inherit name package; }) packages)))));
 
+      allPackages = builtins.mapAttrs (k: v: lib.f.importPackage v) (import ./pkgs/all-packages.nix);
       allModules = import ./modules/all-modules.nix;
     in
     {
       inherit lib;
-      packages = constructPackagesOutput (import ./pkgs/all-packages.nix);
-      overlays.default = mkOverlay (import ./pkgs/all-packages.nix);
+      packages = constructPackagesOutput allPackages;
+      overlays.default = mkOverlay allPackages;
       nixosModules = allModules // {
         default = _: {
           imports = builtins.attrValues allModules;
