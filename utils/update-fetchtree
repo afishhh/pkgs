@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+from dataclasses import dataclass
+import string
+from pathlib import Path
+import re
+import argparse
+from sys import stderr
+import sys
+from typing import Iterable
+import requests
+
+parser = argparse.ArgumentParser()
+parser.add_argument("files", nargs="+")
+parser.add_argument("-i", "--in-place", action="store_true")
+args = parser.parse_args()
+
+in_place = args.in_place
+
+REGEX = re.compile(r"builtins.fetchTree\s*{(.*?)}", re.MULTILINE | re.DOTALL)
+
+@dataclass
+class Token:
+    text: str
+    pos: int
+
+    @property
+    def is_string_literal(self) -> bool:
+        return self.text[0] == "\""
+
+def tokenize(text: str, offset: int) -> Iterable[Token]:
+    i = offset
+    while text:
+        if text[0].isspace():
+            e = 1
+            while e < len(text) and text[e].isspace():
+                e += 1
+            text = text[e:]
+            i += e
+        elif text[0] in ("=", ";"):
+            yield Token(text[0], i)
+            text = text[1:]
+            i += 1
+        elif text[0] in string.ascii_letters:
+            e = 1
+            while text[e] in string.ascii_letters:
+                e += 1
+            yield Token(text[:e], i)
+            text = text[e:]
+            i += e
+        elif text[0] == "\"":
+            e = 1
+            while text[e] != "\"":
+                if text[e] == "\\":
+                    e += 2
+                else:
+                    e += 1
+            e += 1
+            yield Token(text[:e], i)
+            text = text[e:]
+            i += e
+        else:
+            raise RuntimeError(f"unexpected character {repr(text[0])}")
+
+@dataclass
+class StringLiteral:
+    token: Token
+    value: str
+
+def parse_string_literal(token: Token) -> StringLiteral:
+    assert token.is_string_literal
+
+    result = ""
+    i = 1
+    while i < len(token.text) - 1:
+        if token.text[i] == "\\":
+            result += token.text[i+1]
+            i += 2
+        else:
+            result += token.text[i]
+            i += 1
+
+    return StringLiteral(token, result)
+
+def parse_attrs_interior(text: Iterable[Token]) -> dict[str, StringLiteral]:
+    result = {}
+    it = iter(text)
+    for name_token in it:
+        assert next(it).text == "="
+        result[name_token.text] = parse_string_literal(next(it))
+        assert next(it).text == ";"
+
+    return result
+
+session = requests.session()
+session.headers["Accept"] = "application/vnd.github+json"
+session.headers["X-GitHub-Api-Version"] = "2022-11-28"
+
+def replace_token_in(text: str, token: Token, replacement: str) -> str:
+    return text[:token.pos] + replacement + text[token.pos + len(token.text):]
+
+for file in args.files:
+    source = Path(file).read_text()
+
+    pos = 0
+    i = 0
+    while (match := REGEX.search(source, pos)):
+        tokens = tokenize(match.group(1), match.start(1))
+        attrs = parse_attrs_interior(tokens)
+
+        if attrs["type"].value == "github":
+            rev_lit = attrs["rev"]
+            owner = attrs['owner'].value
+            repo = attrs['repo'].value
+
+            url = f"https://api.github.com/repos/{owner}/{repo}/commits"
+            data = session.get(url).json()
+            i += 1
+            sha = data[0]["sha"]
+            commiter = data[0]["commit"]["committer"]["name"]
+            verified = data[0]["commit"]["verification"]["verified"]
+            unverified_reason = data[0]["commit"]["verification"]["reason"]
+            title = data[0]["commit"]["message"].splitlines()[0]
+            date = data[0]["commit"]["committer"]["date"]
+
+            print(f"{file}: github:{owner}/{repo} {rev_lit.value[:7]} -> {sha[:7]}", file=stderr)
+            print(f"\t\x1b[36m{title}\x1b[0m", file=stderr)
+            print(file=stderr)
+            print(f"\tCommited by: {commiter}", "(\x1b[92;1mverified\x1b[0m)" if verified else f"(\x1b[33;1m{unverified_reason}\x1b[0m)", file=stderr)
+            print(f"\tDate: {date}", file=stderr)
+            print(file=stderr)
+
+            new_rev_str = f'"{sha}"'
+            source = replace_token_in(source, rev_lit.token, new_rev_str)
+            pos = match.end() + len(new_rev_str) - len(rev_lit.token.text)
+        else:
+            print(f"Unsupported type {repr(attrs['type'].value)}", file=stderr)
+            pos = match.end()
+
+    if in_place:
+        if pos != 0: 
+            Path(file).write_text(source)
+    else:
+        sys.stdout.write(source)

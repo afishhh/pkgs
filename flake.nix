@@ -10,6 +10,7 @@
         "aarch64-linux"
         "x86_64-darwin"
         "aarch64-darwin"
+        "x86_64-windows"
       ];
       evaluatedNixpkgs = builtins.listToAttrs
         (builtins.map
