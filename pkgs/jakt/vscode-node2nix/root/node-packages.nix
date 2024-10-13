@@ -4,13 +4,13 @@
 
 let
   sources = {
-    "@types/vscode-1.88.0" = {
+    "@types/vscode-1.94.0" = {
       name = "_at_types_slash_vscode";
       packageName = "@types/vscode";
-      version = "1.88.0";
+      version = "1.94.0";
       src = fetchurl {
-        url = "https://registry.npmjs.org/@types/vscode/-/vscode-1.88.0.tgz";
-        sha512 = "rWY+Bs6j/f1lvr8jqZTyp5arRMfovdxolcqGi+//+cPDOh8SBvzXH90e7BiSXct5HJ9HGW6jATchbRTpTJpEkw==";
+        url = "https://registry.npmjs.org/@types/vscode/-/vscode-1.94.0.tgz";
+        sha512 = "UyQOIUT0pb14XSqJskYnRwD2aG0QrPVefIfrW1djR+/J4KeFQ0i1+hjZoaAmeNf3Z2jleK+R2hv+EboG/m8ruw==";
       };
     };
     "balanced-match-1.0.2" = {
@@ -37,15 +37,6 @@ let
       version = "1.0.0";
       src = (pkgs.callPackage ../patched-src.nix { }) + /server;
     };
-    "lru-cache-6.0.0" = {
-      name = "lru-cache";
-      packageName = "lru-cache";
-      version = "6.0.0";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/lru-cache/-/lru-cache-6.0.0.tgz";
-        sha512 = "Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==";
-      };
-    };
     lsp-sample-client-client = {
       name = "lsp-sample-client";
       packageName = "lsp-sample-client";
@@ -61,13 +52,13 @@ let
         sha512 = "lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==";
       };
     };
-    "semver-7.6.0" = {
+    "semver-7.6.3" = {
       name = "semver";
       packageName = "semver";
-      version = "7.6.0";
+      version = "7.6.3";
       src = fetchurl {
-        url = "https://registry.npmjs.org/semver/-/semver-7.6.0.tgz";
-        sha512 = "EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==";
+        url = "https://registry.npmjs.org/semver/-/semver-7.6.3.tgz";
+        sha512 = "oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==";
       };
     };
     "tmp-0.2.3" = {
@@ -115,13 +106,13 @@ let
         sha512 = "924/h0AqsMtA5yK22GgMtCYiMdCOtWTSGgUOkgEDX+wk2b0x4sAfLiO4NxBxqbiVtz7K7/1/RgVrVI0NClZwqA==";
       };
     };
-    "vscode-languageserver-textdocument-1.0.11" = {
+    "vscode-languageserver-textdocument-1.0.12" = {
       name = "vscode-languageserver-textdocument";
       packageName = "vscode-languageserver-textdocument";
-      version = "1.0.11";
+      version = "1.0.12";
       src = fetchurl {
-        url = "https://registry.npmjs.org/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.11.tgz";
-        sha512 = "X+8T3GoiwTVlJbicx/sIAF+yuJAqz8VvwJyoMVhwEMoEKE/fkDmrqUgDMyBECcM2A2frVZIUj5HI/ErRXCfOeA==";
+        url = "https://registry.npmjs.org/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.12.tgz";
+        sha512 = "cxWNPesCnQCcMPeenjKKsOCKQZ/L6Tv19DTRIGuLWe32lyzWhihGVJ/rcckZXJxfdKCFvRLS3fpBIsV/ZGX4zA==";
       };
     };
     "vscode-languageserver-types-3.17.3" = {
@@ -133,15 +124,6 @@ let
         sha512 = "SYU4z1dL0PyIMd4Vj8YOqFvHu7Hz/enbWtpfnVbJHU4Nd1YNYx8u0ennumc6h48GQNeOLxmwySmnADouT/AuZA==";
       };
     };
-    "yallist-4.0.0" = {
-      name = "yallist";
-      packageName = "yallist";
-      version = "4.0.0";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz";
-        sha512 = "3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==";
-      };
-    };
   };
   args = {
     name = "jakt";
@@ -149,22 +131,20 @@ let
     version = "0.0.3";
     src = (pkgs.callPackage ../patched-src.nix { });
     dependencies = [
-      sources."@types/vscode-1.88.0"
+      sources."@types/vscode-1.94.0"
       sources."balanced-match-1.0.2"
       sources."brace-expansion-2.0.1"
       sources."jakt-lsp-server-server"
-      sources."lru-cache-6.0.0"
       sources."lsp-sample-client-client"
       sources."minimatch-5.1.6"
-      sources."semver-7.6.0"
+      sources."semver-7.6.3"
       sources."tmp-0.2.3"
       sources."vscode-jsonrpc-8.1.0"
       sources."vscode-languageclient-8.1.0"
       sources."vscode-languageserver-8.1.0"
       sources."vscode-languageserver-protocol-3.17.3"
-      sources."vscode-languageserver-textdocument-1.0.11"
+      sources."vscode-languageserver-textdocument-1.0.12"
       sources."vscode-languageserver-types-3.17.3"
-      sources."yallist-4.0.0"
     ];
     buildInputs = globalBuildInputs;
     meta = {

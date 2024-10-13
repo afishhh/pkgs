@@ -2,30 +2,16 @@
 , lib
 , stdenv
 , esbuild
-, nodePackages
 , nodejs-18_x
 }:
 
 let
-  # NOTE: This isn't done by copying * instead *.nix in node2nixOutput because of nix bug #7150
-  # addNodePackagesToSrc = src: node-packages: stdenv.mkDerivation {
-  #   name = "rar-node-packages-and-src";
-  #
-  #   builder = pkgs.writeScript "builder.sh" ''
-  #     source $stdenv/setup
-  #
-  #     mkdir -p $out
-  #     cp -r ${node-packages}/* $out
-  #     cp -r ${src}/* $out
-  #   '';
-  # };
-  # post install downloads some vscode extensions we don't want
   rootNodePackages = (pkgs.callPackage ./vscode-node2nix/root/default.nix { }).nodeDependencies;
   serverNodePackages = (pkgs.callPackage ./vscode-node2nix/server/default.nix { }).nodeDependencies;
 in
 lib.f.mkPackage stdenv.mkDerivation {
   pname = "jakt-language-server";
-  version = "unstable-2023-04-20";
+  version = "unstable-2023-10-13";
 
   nativeBuildInputs = [ esbuild ];
 

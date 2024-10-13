@@ -5,7 +5,7 @@
 
 lib.f.mkPackage pkgs.vimUtils.buildVimPlugin {
   pname = "jakt.vim";
-  version = "unstable-2024-04-20";
+  version = "unstable-2024-10-13";
 
   patches = [ ./vim_patch_out_lsp.patch ];
   postPatch = ''

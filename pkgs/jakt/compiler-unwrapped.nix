@@ -6,7 +6,7 @@
 
 llvmPackages_16.stdenv.mkDerivation {
   pname = "jakt-unwrapped";
-  version = "unstable-2024-04-20";
+  version = "unstable-2024-10-13";
 
   nativeBuildInputs = [ pkg-config cmake ninja ];
 

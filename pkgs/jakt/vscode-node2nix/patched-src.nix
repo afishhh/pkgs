@@ -5,6 +5,7 @@ stdenv.mkDerivation {
 
   src = (import ../src.nix).jakt;
 
+  # post install downloads some vscode extensions we don't want
   patches = [ ./jakt-vscode-no-postinstall.patch ];
 
   unpackPhase = "";
