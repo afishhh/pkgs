@@ -72,6 +72,9 @@
         description = "Noise canceling source for pipewire";
         requires = [ "pipewire.service" ];
         wantedBy = [ "pipewire.service" ];
+        serviceConfig = {
+          Restart = "on-failure";
+        };
         script = "${pkgs.pipewire}/bin/pipewire -c source-rnnoise.conf";
         enable = true;
       };
