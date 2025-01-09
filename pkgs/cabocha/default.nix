@@ -1,6 +1,6 @@
 { stdenv
 , lib
-, fetchgdrive
+, fetchzip
 , libiconv
 , crfpp
 , mecab
@@ -13,9 +13,9 @@ lib.f.mkPackage stdenv.mkDerivation {
   nativeBuildInputs = [ libiconv ];
   buildInputs = [ crfpp mecab ];
 
-  src = fetchgdrive {
-    file_id = "0B4y35FiV1wh7SDd1Q1dUQkZQaUU";
-    extension = "tar.gz";
+  src = fetchzip {
+    # Same situation as CRF++
+    url = "https://fishhh.dev/files/cabocha-0.69.tar.gz";
     hash = "sha256-gCSeFh+QiD7ptrso3B47L4Yn5tzjwXgk3ZKmeh67ti8=";
   };
 
