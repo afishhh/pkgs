@@ -1,5 +1,5 @@
 { stdenv
-, fetchgdrive
+, fetchzip
 , lib
 }:
 
@@ -7,9 +7,11 @@ lib.f.mkPackage stdenv.mkDerivation {
   pname = "crfpp";
   version = "0.58";
 
-  src = fetchgdrive {
-    file_id = "0B4y35FiV1wh7QVR6VXJ5dWExSTQ";
-    extension = "tar.gz";
+  src = fetchzip {
+    # Original google drive file returns 404
+    # Retrieved from https://archive.netbsd.org/pub/pkgsrc-archive/distfiles/2019Q4/
+    # Extracted nix hash matches original perfectly
+    url = "https://fishhh.dev/files/CRF++-0.58.tar.gz";
     hash = "sha256-rnyIWPUV2sdQTmcPGgPuAj5MBk2T4jJp2zBfDU8ElPI=";
   };
 
